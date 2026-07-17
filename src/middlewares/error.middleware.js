@@ -1,7 +1,7 @@
 import AppError from '../utils/appError.js';
 
-const handleJWTError = () => new AppError('Invalid token. Please log in again!', 401);
-const handleJWTExpiredError = () => new AppError('Your token has expired! Please log in again.', 401);
+const handleJWTError = () => new AppError('Session invalid. Please log in again.', 401);
+const handleJWTExpiredError = () => new AppError('Session expired. Please log in again.', 401);
 
 export default (err, req, res, next) => {
   let error = { ...err };

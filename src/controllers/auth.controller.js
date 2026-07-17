@@ -77,20 +77,20 @@ export const refreshToken = catchAsync(async (req, res, next) => {
   const { refreshToken } = req.cookies;
 
   if (!refreshToken) {
-    return next(new AppError('No refresh token provided. Please log in again.', 401));
+    return next(new AppError('No active session. Please log in again.', 401));
   }
 
   const user = await User.findOne({ refreshToken });
   
   if (!user) {
-    return next(new AppError('Invalid refresh token. Please log in again.', 401));
+    return next(new AppError('Session invalid. Please log in again.', 401));
   }
 
   // Verify token expiry
   import('jsonwebtoken').then(jwt => {
     jwt.default.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (err, decoded) => {
       if (err) {
-        return next(new AppError('Refresh token expired or invalid. Please log in again.', 401));
+        return next(new AppError('Session expired. Please log in again.', 401));
       }
       
       const token = signToken(user._id);
