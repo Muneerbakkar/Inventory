@@ -66,6 +66,14 @@ app.use('/api/settings', settingsRouter);
 app.use('/api/notifications', notificationRouter);
 app.use('/api/audit-logs', auditLogRouter);
 
+// Base route for health check / welcome message
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    message: 'Welcome to the Inventory and Billing API!',
+  });
+});
+
 app.use((req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
