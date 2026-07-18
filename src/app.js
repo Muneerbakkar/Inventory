@@ -24,6 +24,7 @@ import reportRouter from './routes/report.routes.js';
 import settingsRouter from './routes/settings.routes.js';
 import notificationRouter from './routes/notification.routes.js';
 import auditLogRouter from './routes/auditLog.routes.js';
+import roleRouter from './routes/role.routes.js';
 
 const app = express();
 
@@ -65,6 +66,7 @@ app.use('/api/reports', reportRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/notifications', notificationRouter);
 app.use('/api/audit-logs', auditLogRouter);
+app.use('/api/roles', roleRouter);
 
 // Base route for health check / welcome message
 app.get('/', (req, res) => {

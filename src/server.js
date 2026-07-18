@@ -14,8 +14,10 @@ process.on('uncaughtException', err => {
 // Connect DB
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => {
+  .then(async () => {
     console.log('DB connection successful!');
+    const { seedRoles } = await import('./config/seedRoles.js');
+    await seedRoles();
     initCronJobs();
   });
 

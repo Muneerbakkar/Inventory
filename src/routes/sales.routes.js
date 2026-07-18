@@ -1,6 +1,6 @@
 import express from 'express';
 import { createInvoice, getInvoices, getInvoiceById, deleteInvoice, updateInvoice, updatePaymentStatus } from '../controllers/salesController.js';
-import { protect } from '../middlewares/auth.middleware.js';
+import { protect, hasPermission } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
@@ -8,17 +8,17 @@ router.use(protect);
 
 router
   .route('/')
-  .get(getInvoices)
-  .post(createInvoice);
+  .get(hasPermission('Sales.read'), getInvoices)
+  .post(hasPermission('Sales.create'), createInvoice);
 
 router
   .route('/:id')
-  .get(getInvoiceById)
-  .put(updateInvoice)
-  .delete(deleteInvoice);
+  .get(hasPermission('Sales.read'), getInvoiceById)
+  .put(hasPermission('Sales.update'), updateInvoice)
+  .delete(hasPermission('Sales.delete'), deleteInvoice);
 
 router
   .route('/:id/payment')
-  .patch(updatePaymentStatus);
+  .patch(hasPermission('Sales.update'), updatePaymentStatus);
 
 export default router;

@@ -5,6 +5,8 @@ import catchAsync from '../utils/catchAsync.js';
 import AppError from '../utils/appError.js';
 import { auditLocalStorage } from '../utils/auditContext.js';
 
+import Role from '../models/Role.js';
+
 export const protect = catchAsync(async (req, res, next) => {
   // 1) Getting token and check if it's there
   let token;
@@ -32,6 +34,14 @@ export const protect = catchAsync(async (req, res, next) => {
   if (!currentUser.isActive) {
     return next(new AppError('This user is inactive.', 401));
   }
+  
+  // 5) Fetch role and permissions
+  const role = await Role.findOne({ name: currentUser.role });
+  if (role) {
+    currentUser.permissions = role.permissions;
+  } else {
+    currentUser.permissions = [];
+  }
 
   // GRANT ACCESS TO PROTECTED ROUTE
   req.user = currentUser;
@@ -44,5 +54,15 @@ export const restrictTo = (...roles) => {
       return next(new AppError('You do not have permission to perform this action', 403));
     }
     next();
+  };
+};
+
+export const hasPermission = (permission) => {
+  return (req, res, next) => {
+    // SuperAdmin bypass or specific permission check
+    if (req.user.role === 'SuperAdmin' || req.user.permissions.includes(permission)) {
+      return next();
+    }
+    return next(new AppError('You do not have permission to perform this action', 403));
   };
 };

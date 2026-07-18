@@ -1,15 +1,17 @@
 import express from 'express';
 import * as reportController from '../controllers/report.controller.js';
-import { protect, restrictTo } from '../middlewares/auth.middleware.js';
+import { protect, hasPermission } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
 router.use(protect);
 
-router.get('/sales', restrictTo('SuperAdmin', 'Admin', 'SalesStaff', 'Accountant'), reportController.getSalesReport);
-router.get('/purchase', restrictTo('SuperAdmin', 'Admin', 'Accountant'), reportController.getPurchaseReport);
-router.get('/stock-valuation', restrictTo('SuperAdmin', 'Admin', 'SalesStaff', 'Accountant', 'WarehouseStaff'), reportController.getStockValuationReport);
-router.get('/gst', restrictTo('SuperAdmin', 'Admin', 'Accountant'), reportController.getGstReport);
-router.get('/commission', restrictTo('SuperAdmin', 'Admin', 'Accountant'), reportController.getCommissionReport);
+// All reports use VIEW_REPORTS permission
+
+router.get('/sales', hasPermission('Reports.read'), reportController.getSalesReport);
+router.get('/purchase', hasPermission('Reports.read'), reportController.getPurchaseReport);
+router.get('/stock-valuation', hasPermission('Reports.read'), reportController.getStockValuationReport);
+router.get('/gst', hasPermission('Reports.read'), reportController.getGstReport);
+router.get('/commission', hasPermission('Reports.read'), reportController.getCommissionReport);
 
 export default router;

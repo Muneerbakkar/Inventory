@@ -1,12 +1,12 @@
 import express from 'express';
 import * as settingsController from '../controllers/settings.controller.js';
-import { protect, restrictTo } from '../middlewares/auth.middleware.js';
+import { protect, hasPermission } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
 router.use(protect);
 
-router.get('/', settingsController.getSettings);
-router.put('/', restrictTo('SuperAdmin', 'Admin'), settingsController.updateSettings);
+router.get('/', hasPermission('Settings.read'), settingsController.getSettings);
+router.put('/', hasPermission('Settings.update'), settingsController.updateSettings);
 
 export default router;

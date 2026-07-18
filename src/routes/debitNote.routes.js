@@ -1,6 +1,6 @@
 import express from 'express';
 import { getDebitNotes, getDebitNoteById, createDebitNote, updateDebitNoteStatus, deleteDebitNote } from '../controllers/debitNoteController.js';
-import { protect } from '../middlewares/auth.middleware.js';
+import { protect, hasPermission } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
@@ -8,13 +8,13 @@ router.use(protect);
 
 router
   .route('/')
-  .get(getDebitNotes)
-  .post(createDebitNote);
+  .get(hasPermission('Purchases.read'), getDebitNotes)
+  .post(hasPermission('Purchases.create'), createDebitNote);
 
 router
   .route('/:id')
-  .get(getDebitNoteById)
-  .patch(updateDebitNoteStatus)
-  .delete(deleteDebitNote);
+  .get(hasPermission('Purchases.read'), getDebitNoteById)
+  .patch(hasPermission('Purchases.update'), updateDebitNoteStatus)
+  .delete(hasPermission('Purchases.delete'), deleteDebitNote);
 
 export default router;

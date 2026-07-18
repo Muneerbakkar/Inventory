@@ -1,6 +1,6 @@
 import express from 'express';
 import { getAllSuppliers, getSupplier, createSupplier, updateSupplier, deleteSupplier } from '../controllers/supplier.controller.js';
-import { protect, restrictTo } from '../middlewares/auth.middleware.js';
+import { protect, hasPermission } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
@@ -9,13 +9,13 @@ router.use(protect);
 
 router
   .route('/')
-  .get(getAllSuppliers)
-  .post(restrictTo('SuperAdmin', 'Admin', 'WarehouseStaff'), createSupplier);
+  .get(hasPermission('Suppliers.read'), getAllSuppliers)
+  .post(hasPermission('Suppliers.create'), createSupplier);
 
 router
   .route('/:id')
-  .get(getSupplier)
-  .put(restrictTo('SuperAdmin', 'Admin', 'WarehouseStaff'), updateSupplier)
-  .delete(restrictTo('SuperAdmin', 'Admin'), deleteSupplier);
+  .get(hasPermission('Suppliers.read'), getSupplier)
+  .put(hasPermission('Suppliers.update'), updateSupplier)
+  .delete(hasPermission('Suppliers.delete'), deleteSupplier);
 
 export default router;

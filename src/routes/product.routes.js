@@ -7,7 +7,7 @@ import {
   deleteProduct,
   getUniqueBrands,
 } from '../controllers/product.controller.js';
-import { protect, restrictTo } from '../middlewares/auth.middleware.js';
+import { protect, hasPermission } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
@@ -15,15 +15,15 @@ router.use(protect);
 
 router
   .route('/')
-  .get(getAllProducts)
-  .post(restrictTo('SuperAdmin', 'Admin', 'WarehouseStaff'), createProduct);
+  .get(hasPermission('Products.read'), getAllProducts)
+  .post(hasPermission('Products.create'), createProduct);
 
-router.get('/brands/unique', getUniqueBrands);
+router.get('/brands/unique', hasPermission('Products.read'), getUniqueBrands);
 
 router
   .route('/:id')
-  .get(getProduct)
-  .patch(restrictTo('SuperAdmin', 'Admin', 'WarehouseStaff'), updateProduct)
-  .delete(restrictTo('SuperAdmin', 'Admin'), deleteProduct);
+  .get(hasPermission('Products.read'), getProduct)
+  .patch(hasPermission('Products.update'), updateProduct)
+  .delete(hasPermission('Products.delete'), deleteProduct);
 
 export default router;

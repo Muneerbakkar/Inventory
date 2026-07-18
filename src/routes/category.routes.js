@@ -6,7 +6,7 @@ import {
   updateCategory,
   deleteCategory
 } from '../controllers/category.controller.js';
-import { protect, restrictTo } from '../middlewares/auth.middleware.js';
+import { protect, hasPermission } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
@@ -14,13 +14,13 @@ router.use(protect);
 
 router
   .route('/')
-  .get(getAllCategories)
-  .post(restrictTo('SuperAdmin', 'Admin', 'WarehouseStaff'), createCategory);
+  .get(hasPermission('Categories.read'), getAllCategories)
+  .post(hasPermission('Categories.create'), createCategory);
 
 router
   .route('/:id')
-  .get(getCategory)
-  .patch(restrictTo('SuperAdmin', 'Admin', 'WarehouseStaff'), updateCategory)
-  .delete(restrictTo('SuperAdmin', 'Admin'), deleteCategory);
+  .get(hasPermission('Categories.read'), getCategory)
+  .patch(hasPermission('Categories.update'), updateCategory)
+  .delete(hasPermission('Categories.delete'), deleteCategory);
 
 export default router;
