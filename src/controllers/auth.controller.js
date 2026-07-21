@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import Role from '../models/Role.js';
 import catchAsync from '../utils/catchAsync.js';
 import AppError from '../utils/appError.js';
 import { signToken, signRefreshToken } from '../utils/jwt.js';
@@ -17,12 +18,17 @@ const createSendToken = async (user, statusCode, res) => {
     secure: process.env.NODE_ENV === 'production',
   });
 
-  user.password = undefined;
+  const roleDoc = await Role.findOne({ name: user.role });
+  const permissions = roleDoc ? roleDoc.permissions : [];
+
+  const userObj = user.toObject ? user.toObject() : user;
+  userObj.password = undefined;
+  userObj.permissions = permissions;
 
   res.status(statusCode).json({
     status: 'success',
     token,
-    data: { user },
+    data: { user: userObj },
   });
 };
 
@@ -103,10 +109,16 @@ export const refreshToken = catchAsync(async (req, res, next) => {
 });
 
 export const getMe = catchAsync(async (req, res, next) => {
+  const roleDoc = await Role.findOne({ name: req.user.role });
+  const permissions = roleDoc ? roleDoc.permissions : [];
+  
+  const userObj = req.user.toObject ? req.user.toObject() : req.user;
+  userObj.permissions = permissions;
+
   res.status(200).json({
     status: 'success',
     data: {
-      user: req.user,
+      user: userObj,
     },
   });
 });
@@ -128,9 +140,15 @@ export const updateMe = catchAsync(async (req, res, next) => {
     runValidators: true,
   });
 
+  const roleDoc = await Role.findOne({ name: updatedUser.role });
+  const permissions = roleDoc ? roleDoc.permissions : [];
+  
+  const userObj = updatedUser.toObject ? updatedUser.toObject() : updatedUser;
+  userObj.permissions = permissions;
+
   res.status(200).json({
     status: 'success',
-    data: { user: updatedUser },
+    data: { user: userObj },
   });
 });
 

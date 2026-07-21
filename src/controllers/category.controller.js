@@ -38,7 +38,20 @@ export const getAllCategories = catchAsync(async (req, res, next) => {
     return res.status(200).json(cachedCategories);
   }
 
-  let dbQuery = Category.find(query).populate('parentCategory', 'name').sort('name');
+  let dbQuery = Category.find(query)
+    .populate({
+      path: 'parentCategory',
+      select: 'name parentCategory',
+      populate: {
+        path: 'parentCategory',
+        select: 'name parentCategory',
+        populate: {
+          path: 'parentCategory',
+          select: 'name'
+        }
+      }
+    })
+    .sort('-createdAt');
   if (isPaginated) {
     dbQuery = dbQuery.skip(skip).limit(limit);
   }
@@ -73,7 +86,18 @@ export const getCategory = catchAsync(async (req, res, next) => {
     return res.status(200).json(cachedCategory);
   }
 
-  const category = await Category.findById(req.params.id).populate('parentCategory', 'name');
+  const category = await Category.findById(req.params.id).populate({
+    path: 'parentCategory',
+    select: 'name parentCategory',
+    populate: {
+      path: 'parentCategory',
+      select: 'name parentCategory',
+      populate: {
+        path: 'parentCategory',
+        select: 'name'
+      }
+    }
+  });
 
   if (!category) {
     return next(new AppError('No category found with that ID', 404));

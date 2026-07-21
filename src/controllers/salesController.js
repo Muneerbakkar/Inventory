@@ -109,6 +109,7 @@ export const processInvoiceCreation = async (payload) => {
 
     // 6. Invalidate Product Cache
     await clearCache('products*');
+    await clearCache('dashboard*');
 
     return newInvoice;
 
@@ -313,6 +314,7 @@ export const updateInvoice = catchAsync(async (req, res, next) => {
     }
 
     await clearCache('products*');
+    await clearCache('dashboard*');
     res.status(200).json({ status: 'success', data: { invoice } });
 
   } catch (error) {
@@ -357,6 +359,7 @@ export const deleteInvoice = catchAsync(async (req, res, next) => {
 
   // 3. Clear Product Cache
   await clearCache('products*');
+  await clearCache('dashboard*');
 
   // 4. Delete the invoice
   await Invoice.findByIdAndDelete(req.params.id);
@@ -384,5 +387,6 @@ export const updatePaymentStatus = catchAsync(async (req, res, next) => {
   }
 
   await invoice.save();
+  await clearCache('dashboard*');
   res.status(200).json({ status: 'success', data: { invoice } });
 });

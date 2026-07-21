@@ -57,22 +57,17 @@ export const getUser = catchAsync(async (req, res, next) => {
 export const createUser = catchAsync(async (req, res, next) => {
   const { name, email, phone, password, role, isActive } = req.body;
 
-  // Hash password manually to ensure it's stored correctly
-  const hashedPassword = await bcrypt.hash(password, 12);
-
-  const newUser = await User.collection.insertOne({
+  const user = await User.create({
     name,
     email,
     phone,
-    password: hashedPassword,
+    password, // Pre-save hook will hash this automatically
     role: role || 'WarehouseStaff',
     isActive: isActive !== undefined ? isActive : true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    __v: 0,
   });
 
-  const user = await User.findById(newUser.insertedId);
+  // Remove password from response
+  user.password = undefined;
 
   res.status(201).json({ status: 'success', data: { user } });
 });
@@ -120,6 +115,24 @@ export const toggleUserStatus = catchAsync(async (req, res, next) => {
 
   user.isActive = !user.isActive;
   await user.save({ validateBeforeSave: false });
+
+  res.status(200).json({ status: 'success', data: { user } });
+});
+
+export const updateUserPassword = catchAsync(async (req, res, next) => {
+  const { password } = req.body;
+  if (!password) {
+    return next(new AppError('Please provide a new password', 400));
+  }
+
+  const user = await User.findById(req.params.id).select('+password');
+  if (!user) return next(new AppError('No user found with that ID', 404));
+
+  user.password = password;
+  await user.save(); // triggers the pre('save') hook to hash the new password
+
+  // Remove password from response
+  user.password = undefined;
 
   res.status(200).json({ status: 'success', data: { user } });
 });

@@ -80,6 +80,7 @@ export const createPurchaseBill = catchAsync(async (req, res, next) => {
     });
 
     await clearCache('products*');
+    await clearCache('dashboard*');
     res.status(201).json({ status: 'success', data: { purchaseBill: newBill } });
 
   } catch (error) {
@@ -183,6 +184,7 @@ export const updatePurchasePaymentStatus = catchAsync(async (req, res, next) => 
   }
 
   await bill.save();
+  await clearCache('dashboard*');
   res.status(200).json({ status: 'success', data: { purchaseBill: bill } });
 });
 
@@ -198,6 +200,7 @@ export const deletePurchaseBill = catchAsync(async (req, res, next) => {
   }
 
   await clearCache('products*');
+  await clearCache('dashboard*');
   await PurchaseBill.findByIdAndDelete(req.params.id);
 
   res.status(204).json({ status: 'success', data: null });
@@ -277,6 +280,7 @@ export const updatePurchaseBill = catchAsync(async (req, res, next) => {
     await bill.save();
 
     await clearCache('products*');
+    await clearCache('dashboard*');
     res.status(200).json({ status: 'success', data: { purchaseBill: bill } });
 
   } catch (error) {
